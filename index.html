@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC Example - ivohost.com</title>
+
+    <style>
+        
+        body{
+            font-family: sans-serif;
+            font-size: 17px;
+            margin:20px;
+
+        }
+
+        button{
+            font-family:inherit;
+            font-size: inherit;
+        }
+
+        video {
+            border: solid 1px silver;
+            max-height: 200px;
+        }
+
+        p{
+            max-width: 600px;
+        }
+
+        .left{
+            float:left;
+            margin-right: 10px;
+        }
+
+        .clear{
+            clear:both;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <h1>WebRTC Example - ivohost.com</h1>
+
+    <div class="left">
+
+        <video id="leftVideo" autoplay playsinline>
+            Your browser does not support the video tag.
+        </video>
+        <br>
+
+        <button id="leftButton">Connect</button>
+
+    </div>
+
+    <div class="left">
+
+        <video id="rightVideo" autoplay playsinline>
+            Your browser does not support the video tag.
+        </video>
+        <br>
+
+        <button id="rightButton">Connect</button>
+
+    </div>
+
+    <div class="clear"></div>
+
+    <br>
+
+    <p>
+        This is a WebRTC example that demonstrates how this technology works from a technical perspective.
+
+    </p>
+
+    <p>
+        The example is in JavaScript, gets the user media, creates two RTC peer connections, exchanges the media between the peers, and shows the media in HTML video elements.
+
+    </p>
+
+    
+    <script type="module" src="./left.js"></script>
+    <script type="module" src="./right.js"></script>
+
+</body>
+
+</html>

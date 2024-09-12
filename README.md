@@ -7,5 +7,8 @@ The example is in JavaScript, gets the user media, creates two RTC peer connecti
 exchanges the media between the peers, and shows the media in HTML video
 elements.
 
-Presentation:
+Demo:  
+[https://ivohost.github.io/webrtc-example/](https://ivohost.github.io/webrtc-example/)
+
+Presentation:  
 [webrtc-example.pdf](webrtc-example.pdf)

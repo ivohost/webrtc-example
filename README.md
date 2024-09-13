@@ -12,3 +12,6 @@ Demo:
 
 Presentation:  
 [webrtc-example.pdf](webrtc-example.pdf)
+
+
+![WebRTC example](webrtc-example.png)

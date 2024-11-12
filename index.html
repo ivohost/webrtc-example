@@ -38,6 +38,10 @@
             clear:both;
         }
 
+        .hide{
+            display:none;
+        }
+
     </style>
 </head>
 
@@ -45,25 +49,34 @@
 
     <h1>WebRTC Example - ivohost.com</h1>
 
+    <p>
+        Browser permissions for camera are required to use this page. 
+    </p>
+
+    <button id="permButton">Get permissions</button>
+    <br>
+
+    <hr>
+
     <div class="left">
+
+        <button id="leftButton" disabled>Connect</button>
+        <br>
 
         <video id="leftVideo" autoplay playsinline>
             Your browser does not support the video tag.
         </video>
-        <br>
-
-        <button id="leftButton">Connect</button>
 
     </div>
 
     <div class="left">
 
+        <button id="rightButton" disabled>Connect</button>
+        <br>
+
         <video id="rightVideo" autoplay playsinline>
             Your browser does not support the video tag.
         </video>
-        <br>
-
-        <button id="rightButton">Connect</button>
 
     </div>
 
@@ -72,12 +85,12 @@
     <br>
 
     <p>
-        This is a WebRTC example that demonstrates how this technology works from a technical perspective.
+        This is a WebRTC example that demonstrates how this technology works.
 
     </p>
 
     <p>
-        The example is in JavaScript, gets the user media, creates two RTC peer connections, exchanges the media between the peers, and shows the media in HTML video elements.
+        The example gets the user media, creates RTC peer connections, exchanges the media between the peers, and shows the media.
 
     </p>
 

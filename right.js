@@ -9,16 +9,23 @@ let stream; // Media streem
 let peer;   // Rtc peer connection
 let icelist = []; // Hold ice util remote description is ready
 
+
 // When html document is ready
-window.addEventListener('load', init);
+window.addEventListener('load', documentLoad);
 
 
 // Initialize 
-async function init() {
+async function documentLoad() {
 
-    // Add button click event
+    // Events
+    let permButton = document.getElementById("permButton");
     let rightButton = document.getElementById("rightButton");
+
+    permButton.addEventListener('click', getPermissions);
     rightButton.addEventListener('click', rightButtonClick);
+
+    // Check browser media permissions
+    checkPermissions()
 
     // Create rtc peer connection
     createPeer();
@@ -26,17 +33,57 @@ async function init() {
 }
 
 
+// Check browser media permissions
+async function checkPermissions() {
+
+    const cam = await navigator.permissions.query({ name: 'camera' });
+
+    // If permissions are enabled, enable left and right button
+    if (cam.state == 'granted') {
+        document.getElementById("permButton").disabled = true;
+        document.getElementById("rightButton").disabled = false;
+        document.getElementById("rightButton").disabled = false;
+
+    }
+
+}
+
+
+// Get media permissions
+async function getPermissions() {
+    try {
+
+        let conf = { video: true, audio: false };
+        let stream = await navigator.mediaDevices.getUserMedia(conf);
+
+        stream.getTracks().forEach(function (track) {
+            track.stop();
+        });
+
+        stream = null;
+        location.reload();
+        return Promise.resolve(true);
+
+    } catch (err) {
+        console.error('Error media permissions.', err.message);
+        return Promise.resolve(false);
+
+    }
+
+}
+
+
+
 // Button click
 async function rightButtonClick() {
 
-        // Get media for the first time
-        if (!stream) {
-            await getMedia();   // Get user media
-            addMedia();         // Add media to peer    
-        }
+    // Get media for the first time
+    if (!stream) {
+        await getMedia();   // Get user media
+        addMedia();         // Add media to peer    
+    }
 
-        // Request offer from other peer
-        left.channel('requestOffer', {});
+    await sendOffer();  // Send offer to other peer
 
 }
 
@@ -49,12 +96,20 @@ async function rightButtonClick() {
 async function getMedia() {
     try {
 
+        // Release the media
+        if (stream) {
+            stream.getTracks().forEach(function (track) {
+                track.stop();
+            });
+
+        }
+
         // Get the media stream
         const options = { video: true, audio: false };
         const stream2 = await navigator.mediaDevices.getUserMedia(options);
 
         // Print the stream
-        console.log("right getMedia: ", stream2);
+        console.log("getMedia: ", stream2);
 
         // Save the stream in global variable
         stream = stream2;
@@ -64,7 +119,7 @@ async function getMedia() {
         // rightVideo.srcObject = stream;
 
     } catch (err) {
-        console.error("right getMedia: ", err);
+        console.error("getMedia: ", err);
     }
 
 }
@@ -74,7 +129,7 @@ async function getMedia() {
 function addMedia() {
     try {
 
-        console.log("right addMedia");
+        console.log("addMedia");
 
         // Remove old media tracks from peer
         const senders = peer.getSenders();
@@ -88,7 +143,7 @@ function addMedia() {
         });
 
     } catch (err) {
-        console.error("right getMedia: ", err);
+        console.error("getMedia: ", err);
     }
 
 
@@ -99,48 +154,48 @@ function addMedia() {
 // Peer events
 
 
-// Peer connectionstatechange event
-function connectionstatechange(event) {
+// Peer peerState event
+function peerState(event) {
     try {
-        // console.log("right connectionstatechange: ", event);
-        console.log("right connectionstatechange: ", peer.connectionState);
+        // console.log("peerState: ", event);
+        console.log("peerState: ", peer.connectionState);
 
     } catch (err) {
-        console.error("right connectionstatechange: ", err);
+        console.error("peerState: ", err);
     }
 }
 
 
-// Peer icecandidate event
+// Peer peerIce event
 // This has to be sent to the other peer
-function icecandidate(event) {
+function peerIce(event) {
     try {
         if (event.candidate) {
-            console.log("right icecandidate: ", event);
+            console.log("peerIce: ", event);
 
             // Send ice candidate to the other peer
             left.channel('receiveIce', event.candidate);
         }
 
     } catch (err) {
-        console.error("right icecandidate: ", err);
+        console.error("peerIce: ", err);
     }
 }
 
 
 // Peer track event
 // Remote stream has been received
-function track(event) {
+function peerTrack(event) {
     try {
 
-        console.log("right track: ", event);
+        console.log("peerTrack: ", event);
 
-        // Add the remote peer stream to local html video
+        // Add the remote stream to local video
         let rightVideo = document.getElementById('rightVideo');
         rightVideo.srcObject = event.streams[0];
 
     } catch (err) {
-        console.error("right track: ", err);
+        console.error("peerTrack: ", err);
     }
 }
 
@@ -154,7 +209,7 @@ function createPeer() {
 
         // Ice servers
         const options = {
-            'icelistervers': [
+            'iceServers': [
                 { "urls": "stun:stun1.l.google.com:19302" },
                 { "urls": "stun:stun2.l.google.com:19302" }
             ]
@@ -164,14 +219,33 @@ function createPeer() {
         peer = new RTCPeerConnection(options);
 
         // Add event listeners
-        peer.addEventListener('connectionstatechange', connectionstatechange);
-        peer.addEventListener('icecandidate', icecandidate);
-        peer.addEventListener('track', track);
+        peer.addEventListener('connectionstatechange', peerState);
+        peer.addEventListener('icecandidate', peerIce);
+        peer.addEventListener('track', peerTrack);
 
-        console.log("right createPeer: ", peer);
+        console.log("createPeer: ", peer);
 
     } catch (err) {
-        console.error("right createPeer: ", err);
+        console.error("createPeer: ", err);
+    }
+
+}
+
+
+// Send rtc offer to the other peer
+async function sendOffer() {
+    try {
+
+        // Create offer
+        const offer = await peer.createOffer();
+        await peer.setLocalDescription(offer);
+        console.log("sendOffer: ", offer);
+
+        // Send offer to the other peer
+        left.channel('receiveOffer', offer);
+
+    } catch (err) {
+        console.error("sendOffer: ", err);
     }
 
 }
@@ -181,50 +255,65 @@ function createPeer() {
 async function receiveOffer(offer) {
     try {
 
+        console.log("receiveOffer: ", offer);
+
         // Get media for the first time
-        if(!stream){
+        if (!stream) {
             await getMedia();   // Get user media
             addMedia();         // Add media to peer    
         }
 
-        // let sessionDes = new RTCSessionDescription(offer);
+        // 
         await peer.setRemoteDescription(offer);
         while(icelist.lenght){
             await peer.addIceCandidate(icelist.shift());
-
         }
-
+        
         // Create answer
-        const answer = await peer.createAnswer(offer);
+        const answer = await peer.createAnswer();
         await peer.setLocalDescription(answer);
-        console.log("right receiveOffer: ", answer);
 
         // Send answer to the other peer
         left.channel('receiveAnswer', answer);
 
     } catch (err) {
-        console.error("left receiveOffer: ", err);
+        console.error("receiveOffer: ", err);
     }
+}
+
+
+
+// Receive rtc answer from the other peer
+async function receiveAnswer(answer) {
+    try {
+        console.log("receiveAnswer: ", answer);
+
+        // const remoteDes = new RTCSessionDescription(answer);
+        await peer.setRemoteDescription(answer);
+
+    } catch (err) {
+        console.error("receiveAnswer: ", err);
+    }
+
 }
 
 
 // Receive ice candidate from the other peer
 async function receiveIce(ice) {
     try {
-        console.log("right receiveIce: ", ice);
+        console.log("receiveIce: ", ice);
 
         // If remote description is not ready save the ice
-        // 
-        if(!peer.remoteDescription){
+        if (!peer.remoteDescription) {
             icelist.push(ice);
             return;
         }
 
-        // let candidate = new RTCIceCandidate(ice);
+        // let candidate = new RTCpeerIce(ice);
         await peer.addIceCandidate(ice);
 
     } catch (err) {
-        console.error("right receiveIce: ", err);
+        console.error("receiveIce: ", err);
     }
 
 }
@@ -234,17 +323,19 @@ async function receiveIce(ice) {
 // Channel between peers
 
 
-async function channel(message, data = {}){
+async function channel(message, data = {}) {
     try {
-        console.log("right channel: ", message);
+        console.log("channel: ", message);
 
-        if(message == 'receiveOffer'){
+        if (message == 'receiveOffer') {
             await receiveOffer(data);
-        } else if(message == 'receiveIce'){
+        } else if (message == 'receiveAnswer') {
+            await receiveAnswer(data);
+        } else if (message == 'receiveIce') {
             await receiveIce(data);
         }
 
     } catch (err) {
-        console.error("right channel: ", err);
+        console.error("channel: ", err);
     }
 }

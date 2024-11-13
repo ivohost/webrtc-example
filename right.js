@@ -18,14 +18,14 @@ window.addEventListener('load', documentLoad);
 async function documentLoad() {
 
     // Events
-    let permButton = document.getElementById("permButton");
+    // let permButton = document.getElementById("permButton");
     let rightButton = document.getElementById("rightButton");
 
-    permButton.addEventListener('click', getPermissions);
+    // permButton.addEventListener('click', getPermissions);
     rightButton.addEventListener('click', rightButtonClick);
 
     // Check browser media permissions
-    checkPermissions()
+    // checkPermissions()
 
     // Create rtc peer connection
     createPeer();
@@ -34,43 +34,43 @@ async function documentLoad() {
 
 
 // Check browser media permissions
-async function checkPermissions() {
+// async function checkPermissions() {
 
-    const cam = await navigator.permissions.query({ name: 'camera' });
+//     const cam = await navigator.permissions.query({ name: 'camera' });
 
-    // If permissions are enabled, enable left and right button
-    if (cam.state == 'granted') {
-        document.getElementById("permButton").disabled = true;
-        document.getElementById("rightButton").disabled = false;
-        document.getElementById("rightButton").disabled = false;
+//     // If permissions are enabled, enable left and right button
+//     if (cam.state == 'granted') {
+//         document.getElementById("permButton").disabled = true;
+//         document.getElementById("rightButton").disabled = false;
+//         document.getElementById("rightButton").disabled = false;
 
-    }
+//     }
 
-}
+// }
 
 
 // Get media permissions
-async function getPermissions() {
-    try {
+// async function getPermissions() {
+//     try {
 
-        let conf = { video: true, audio: false };
-        let stream = await navigator.mediaDevices.getUserMedia(conf);
+//         let conf = { video: true, audio: false };
+//         let stream = await navigator.mediaDevices.getUserMedia(conf);
 
-        stream.getTracks().forEach(function (track) {
-            track.stop();
-        });
+//         stream.getTracks().forEach(function (track) {
+//             track.stop();
+//         });
 
-        stream = null;
-        location.reload();
-        return Promise.resolve(true);
+//         stream = null;
+//         location.reload();
+//         return Promise.resolve(true);
 
-    } catch (err) {
-        console.error('Error media permissions.', err.message);
-        return Promise.resolve(false);
+//     } catch (err) {
+//         console.error('Error media permissions.', err.message);
+//         return Promise.resolve(false);
 
-    }
+//     }
 
-}
+// }
 
 
 

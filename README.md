@@ -1,11 +1,8 @@
 # WebRTC Example - ivohost.com
 
-This is a WebRTC example that demonstrates how this technology works from a
-technical perspective.
+This is a WebRTC example that demonstrates how this technology works.
 
-The example is in JavaScript, gets the user media, creates two RTC peer connections,
-exchanges the media between the peers, and shows the media in HTML video
-elements.
+The example gets the user media, creates RTC peer connections, exchanges the media between the peers, and shows the media.
 
 Demo:  
 [https://ivohost.github.io/webrtc-example/](https://ivohost.github.io/webrtc-example/)
